@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Data to Highcharts</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+    <script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
+    <script type="text/javascript" src="https://code.highcharts.com/modules/data.js"></script>
+    <!-- <script src="https://code.highcharts.com/modules/canvas-tools.js"></script> -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.1.3/axios.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+    <div id="app">
+        <div class="container border p-5 mt-3" v-for="(item, index) in ids" :key="index">
+            <h1 v-text="item.title"></h1>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label" for="start_date">Fecha inicial</label>
+                    <input v-model="filters.start" class="form-control" type="date" id="start_date" min="2022-10-19"
+                        max="2024-10-19">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="end_date">Fecha Final</label>
+                    <input v-model="filters.end" class="form-control" type="date" id="end_date" min="2022-10-19"
+                        max="2024-10-19">
+                </div>
+            </div>
+            <div class="my-3 d-flex justify-content-center">
+                <button type="button" class="btn btn-success" @click="getResults()">Buscar</button>
+            </div>
+            <div :id="item.id" class="hc2 chart"></div>
+        </div>
+
+        <!-- <iframe src="http://127.0.0.1/entrevista/mete.php" frameborder="0"></iframe> -->
+    </div>
+
+
+</body>
+
+</html>
+<script>
+    const { createApp } = Vue
+
+    createApp({
+        data() {
+            return {
+                filters: { start: '', end: '' },
+                ids: [{id:'miami', title: 'Miami'}, {id: 'orlando', title: 'Orlando'}, {id: 'new_york', title: 'New York'}]
+            }
+        },
+        created() {
+            this.getResults()
+        },
+        methods: {
+            getResults() {
+                let url = 'php_request_script.php?start=' + this.filters.start + '&end=' + this.filters.end
+                axios.get(url).then(res => {
+                    console.log('res ==> ', res.data.miami);
+                    $('#miami').highcharts({
+                        chart: {
+                            type: 'column' //or spline
+                        },
+                        data: {
+                            csv: res.data.miami,
+                            itemDelimiter: ';',
+                            lineDelimiter: '\n'
+                        },
+                        title: {
+                            text: 'Meteomatics CSV Data to Highcharts'
+                        },
+                        subtitle: {
+                            text: 'From csv in a string'
+                        }
+                    });
+                    $('#orlando').highcharts({
+                        chart: {
+                            type: 'column' //or spline
+                        },
+                        data: {
+                            csv: res.data.orlando,
+                            itemDelimiter: ';',
+                            lineDelimiter: '\n'
+                        },
+                        title: {
+                            text: 'Meteomatics CSV Data to Highcharts'
+                        },
+                        subtitle: {
+                            text: 'From csv in a string'
+                        }
+                    });
+                    $('#new_york').highcharts({
+                        chart: {
+                            type: 'column' //or spline
+                        },
+                        data: {
+                            csv: res.data.new_york,
+                            itemDelimiter: ';',
+                            lineDelimiter: '\n'
+                        },
+                        title: {
+                            text: 'Meteomatics CSV Data to Highcharts'
+                        },
+                        subtitle: {
+                            text: 'From csv in a string'
+                        }
+                    });
+                })
+            }
+        },
+    }).mount('#app')
+</script>
